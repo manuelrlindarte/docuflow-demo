@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart
+pydantic
+streamlit
+pdfplumber
+python-docx
+sentence-transformers
+torch
+reportlab
+requests

@@ -1,0 +1,70 @@
+# backend/rulesets/golden_rules_sarlaft.yml
+
+rules:
+  - id: "SARLAFT-001"
+    name: "Procedimiento de identificación de riesgos LA/FT"
+    description: "El documento debe contener procedimiento explícito de identificación de riesgos de lavado de activos y financiación del terrorismo."
+    severity: "CRITICA"
+    document_types:
+      - "sarlaft"
+      - "manual_procedimientos"
+    keywords_required:
+      - ["identificación", "riesgo", "lavado"]
+      - ["procedimiento", "LA/FT"]
+      - ["metodología", "riesgo"]
+    min_occurrences: 2
+
+  - id: "SARLAFT-002"
+    name: "Roles y responsabilidades SARLAFT"
+    description: "Debe definir roles específicos (Oficial de Cumplimiento, responsables por área)."
+    severity: "ALTA"
+    document_types:
+      - "sarlaft"
+      - "manual_procedimientos"
+    keywords_required:
+      - ["oficial", "cumplimiento"]
+      - ["responsable", "SARLAFT"]
+      - ["rol", "función"]
+    min_occurrences: 1
+
+  - id: "MODEL-001"
+    name: "Gobernanza de modelos de IA"
+    description: "Debe incluir sección sobre gobernanza, validación y monitoreo de modelos."
+    severity: "ALTA"
+    document_types:
+      - "sarlaft"
+      - "manual_procedimientos"
+      - "contrato_operativo"
+    keywords_required:
+      - ["gobernanza", "modelo"]
+      - ["validación", "modelo"]
+      - ["comité", "modelos"]
+    min_occurrences: 2
+
+  - id: "OPS-001"
+    name: "Controles y responsables operativos"
+    description: "Debe definir controles específicos y asignar responsables."
+    severity: "MEDIA"
+    document_types:
+      - "manual_procedimientos"
+      - "contrato_operativo"
+      - "sarlaft"
+    keywords_required:
+      - ["control", "responsable"]
+      - ["supervisor", "proceso"]
+      - ["verificación", "ejecutor"]
+    min_occurrences: 1
+
+  - id: "TRACE-001"
+    name: "Trazabilidad de cambios documentales"
+    description: "Debe incluir control de versiones o registro de cambios."
+    severity: "MEDIA"
+    document_types:
+      - "sarlaft"
+      - "manual_procedimientos"
+      - "contrato_operativo"
+    keywords_required:
+      - ["versión", "fecha"]
+      - ["modificación", "cambio"]
+      - ["histórico", "revisión"]
+    min_occurrences: 1
