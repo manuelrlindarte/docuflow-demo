@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocuFlow — Workspace de Revisión</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0B1120; --surface: #111827; --card: #1E293B;
+    --border: rgba(255,255,255,0.08); --text: #E2E8F0;
+    --gray: #64748B; --blue: #3B82F6; --blue-dim: rgba(59,130,246,0.1);
+    --red: #EF4444; --red-dim: rgba(239,68,68,0.1);
+    --yellow: #F59E0B; --yellow-dim: rgba(245,158,11,0.1);
+    --green: #10B981; --green-dim: rgba(16,185,129,0.1);
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; min-height: 100vh; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--blue); }
+  .header-meta { font-size: 0.78rem; color: var(--gray); }
+  .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 57px); }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .upload-zone:hover { border-color: var(--blue); background: var(--blue-dim); }
+  .upload-icon { font-size: 2rem; margin-bottom: 10px; }
+  .upload-text strong { display: block; margin-bottom: 4px; font-size: 0.88rem; }
+  .upload-text { font-size: 0.78rem; color: var(--gray); line-height: 1.6; }
+  input[type="file"] { display: none; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 0.7rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; }
+  .form-select, .form-input { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 0.88rem; font-family: inherit; outline: none; width: 100%; }
+  .form-select:focus, .form-input:focus { border-color: rgba(59,130,246,0.4); }
+  .btn-analyze { background: var(--blue); color: white; border: none; padding: 13px; border-radius: 8px; font-size: 0.92rem; font-weight: 700; cursor: pointer; font-family: inherit; width: 100%; transition: opacity 0.2s; }
+  .btn-analyze:hover { opacity: 0.88; }
+  .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; }
+  .score-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: none; }
+  .score-card.visible { display: block; }
+  .score-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .score-label { font-size: 0.68rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+  .score-num { font-size: 1.8rem; font-weight: 800; }
+  .risk-badge { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
+  .risk-CRÍTICO, .risk-CR-TICO { background: var(--red-dim); color: var(--red); }
+  .risk-ALTO { background: var(--yellow-dim); color: var(--yellow); }
+  .risk-MEDIO { background: rgba(249,115,22,0.1); color: #F97316; }
+  .risk-BAJO { background: var(--green-dim); color: var(--green); }
+  .score-bar-bg { background: rgba(255,255,255,0.06); border-radius: 4px; height: 4px; margin-bottom: 12px; }
+  .score-bar-fill { height: 100%; border-radius: 4px; background: var(--blue); transition: width 1s ease; }
+  .score-summary { font-size: 0.8rem; color: var(--gray); line-height: 1.6; margin-bottom: 12px; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-box { background: var(--bg); border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-n { font-size: 1.3rem; font-weight: 800; }
+  .stat-l { font-size: 0.68rem; color: var(--gray); }
+  .main { padding: 28px 32px; overflow-y: auto; }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; color: var(--gray); }
+  .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+  .empty-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--text); opacity: 0.4; }
+  .empty-sub { font-size: 0.85rem; line-height: 1.6; max-width: 300px; }
+  .loading-state { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
+  .loading-state.visible { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 0.9rem; color: var(--gray); }
+  .loading-step { font-size: 0.78rem; color: var(--blue); }
+  .results { display: none; }
+  .results.visible { display: block; }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .results-title { font-size: 1rem; font-weight: 700; }
+  .results-meta { font-size: 0.75rem; color: var(--gray); margin-top: 3px; }
+  .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { background: var(--card); border: 1px solid var(--border); color: var(--gray); padding: 6px 14px; border-radius: 100px; font-size: 0.78rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .filter-btn.active { background: var(--blue-dim); border-color: rgba(59,130,246,0.3); color: var(--blue); }
+  .hallazgo { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; transition: border-color 0.2s; }
+  .hallazgo:hover { border-color: rgba(255,255,255,0.14); }
+  .hallazgo.rev-APROBADO { border-left: 3px solid var(--green); }
+  .hallazgo.rev-RECHAZADO { border-left: 3px solid var(--red); }
+  .hallazgo-header { padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+  .sev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .sev-CRITICA { background: var(--red); }
+  .sev-ALTA { background: var(--yellow); }
+  .sev-MEDIA { background: #F97316; }
+  .h-info { flex: 1; }
+  .h-id { font-size: 0.65rem; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+  .h-name { font-size: 0.88rem; font-weight: 600; margin: 2px 0 3px; }
+  .h-desc { font-size: 0.78rem; color: var(--gray); line-height: 1.5; }
+  .h-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .estado-tag { font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 100px; }
+  .estado-INCUMPLE { background: var(--red-dim); color: var(--red); }
+  .estado-PARCIAL { background: var(--yellow-dim); color: var(--yellow); }
+  .estado-CUMPLE { background: var(--green-dim); color: var(--green); }
+  .rev-tag { font-size: 0.62rem; }
+  .hallazgo-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+  .hallazgo-body.open { display: block; }
+  .evidence-block { background: var(--bg); border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 0.78rem; color: var(--gray); font-style: italic; line-height: 1.6; margin: 12px 0; }
+  .block-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; font-style: normal; }
+  .ev-label { color: var(--blue); }
+  .rec-block { background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.15); border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; line-height: 1.6; margin-bottom: 12px; }
+  .rec-label { color: var(--green); }
+  .review-section { background: var(--surface); border-radius: 8px; padding: 12px; }
+  .review-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray); margin-bottom: 10px; }
+  .review-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+  .btn-rev { padding: 7px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); font-family: inherit; background: var(--card); color: var(--text); transition: all 0.15s; }
+  .btn-rev.aprobar.active, .btn-rev.aprobar:hover { background: var(--green-dim); border-color: rgba(16,185,129,0.3); color: var(--green); }
+  .btn-rev.rechazar.active, .btn-rev.rechazar:hover { background: var(--red-dim); border-color: rgba(239,68,68,0.3); color: var(--red); }
+  .rev-comment { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-size: 0.8rem; font-family: inherit; resize: none; outline: none; }
+  .btn-save { margin-top: 8px; background: var(--blue); color: white; border: none; padding: 7px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-report { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 9px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .btn-report:hover { border-color: rgba(59,130,246,0.3); color: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Docu<span>Flow</span> <span style="font-weight:400;font-size:0.72rem;color:var(--gray)">Workspace</span></div>
+  <div class="header-meta" id="header-meta">Ningún documento cargado</div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+      <input type="file" id="file-input" accept=".pdf" onchange="handleFile(this)">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">
+        <strong id="upload-label">Subir documento PDF</strong>
+        Políticas SARLAFT, manuales, contratos operativos
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Marco regulatorio</label>
+      <select class="form-select" id="doc-type">
+        <option value="sarlaft">SARLAFT / AML</option>
+        <option value="manual_procedimientos">Manual de procedimientos</option>
+        <option value="contrato_operativo">Contrato operativo</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Organización</label>
+      <input type="text" class="form-input" id="org-name" placeholder="Nombre de la entidad">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Revisor responsable</label>
+      <input type="text" class="form-input" id="reviewer-name" placeholder="Oficial de Cumplimiento">
+    </div>
+
+    <button class="btn-analyze" id="btn-analyze" onclick="runAnalysis()" disabled>
+      Analizar documento
+    </button>
+
+    <div class="score-card" id="score-card">
+      <div class="score-top">
+        <div>
+          <div class="score-label">Score de confianza</div>
+          <div class="score-num" id="score-num">—</div>
+        </div>
+        <div class="risk-badge" id="risk-badge">—</div>
+      </div>
+      <div class="score-bar-bg"><div class="score-bar-fill" id="score-bar" style="width:0%"></div></div>
+      <div class="score-summary" id="score-summary"></div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-n" id="stat-i" style="color:var(--red)">0</div><div class="stat-l">Incumple</div></div>
+        <div class="stat-box"><div class="stat-n" id="stat-p" style="color:var(--yellow)">0</div><div class="stat-l">Parcial</div></div>
+        <div class="stat-box"><div class="stat-n" id="stat-c" style="color:var(--green)">0</div><div class="stat-l">Cumple</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">◈</div>
+      <div class="empty-title">Workspace listo</div>
+      <div class="empty-sub">Cargue un documento PDF para iniciar el análisis de gobernanza documental</div>
+    </div>
+
+    <div class="loading-state" id="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">Analizando documento...</div>
+      <div class="loading-step" id="loading-step">Extrayendo texto del PDF</div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="results-header">
+        <div>
+          <div class="results-title" id="results-title">Hallazgos</div>
+          <div class="results-meta" id="results-meta"></div>
+        </div>
+        <button class="btn-report" onclick="generateReport()">📋 Generar expediente</button>
+      </div>
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterH('all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterH('INCUMPLE',this)">Incumple</button>
+        <button class="filter-btn" onclick="filterH('PARCIAL',this)">Parcial</button>
+        <button class="filter-btn" onclick="filterH('CUMPLE',this)">Cumple</button>
+      </div>
+      <div id="hallazgos-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let currentFile = null;
+let currentData = null;
+let reviews = {};
+
+const zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor='var(--blue)'; zone.style.background='var(--blue-dim)'; });
+zone.addEventListener('dragleave', () => { zone.style.borderColor=''; zone.style.background=''; });
+zone.addEventListener('drop', e => { e.preventDefault(); zone.style.borderColor=''; zone.style.background=''; const f=e.dataTransfer.files[0]; if(f?.name.endsWith('.pdf')) processFile(f); });
+
+function handleFile(input) { if(input.files[0]) processFile(input.files[0]); }
+
+function processFile(file) {
+  currentFile = file;
+  document.getElementById('upload-label').textContent = file.name;
+  document.getElementById('btn-analyze').disabled = false;
+  document.getElementById('header-meta').textContent = file.name;
+}
+
+const steps = ['Extrayendo texto del PDF...','Cargando reglas SARLAFT...','Analizando con motor IA...','Evaluando criterios regulatorios...','Generando hallazgos...'];
+
+async function runAnalysis() {
+  if (!currentFile) return;
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('loading-state').classList.add('visible');
+  document.getElementById('btn-analyze').disabled = true;
+  let s = 0;
+  const si = setInterval(() => { document.getElementById('loading-step').textContent = steps[s++ % steps.length]; }, 1800);
+  const fd = new FormData();
+  fd.append('file', currentFile);
+  fd.append('doc_type', document.getElementById('doc-type').value);
+  fd.append('organization', document.getElementById('org-name').value);
+  fd.append('reviewer', document.getElementById('reviewer-name').value);
+  try {
+    const res = await fetch(`${API}/analyze`, { method:'POST', body:fd });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    currentData = data;
+    clearInterval(si);
+    renderResults(data);
+  } catch(err) {
+    clearInterval(si);
+    document.getElementById('loading-state').classList.remove('visible');
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('btn-analyze').disabled = false;
+    alert('Error: ' + err.message);
+  }
+}
+
+function renderResults(d) {
+  document.getElementById('loading-state').classList.remove('visible');
+  const sc = document.getElementById('score-card');
+  sc.classList.add('visible');
+  document.getElementById('score-num').textContent = d.score_confianza + '/100';
+  const rb = document.getElementById('risk-badge');
+  rb.textContent = d.nivel_riesgo;
+  rb.className = 'risk-badge risk-' + d.nivel_riesgo;
+  setTimeout(() => document.getElementById('score-bar').style.width = d.score_confianza + '%', 100);
+  document.getElementById('score-summary').textContent = d.resumen_ejecutivo;
+  const s = d.estadisticas || {};
+  document.getElementById('stat-i').textContent = s.incumple || 0;
+  document.getElementById('stat-p').textContent = s.parcial || 0;
+  document.getElementById('stat-c').textContent = s.cumple || 0;
+  document.getElementById('results-title').textContent = d.hallazgos.length + ' hallazgos detectados';
+  document.getElementById('results-meta').textContent = (d.documento||'') + ' · ' + (d.organizacion||'') + ' · ' + (d.metadata?.motor_ia||'');
+  renderHallazgos(d.hallazgos);
+  document.getElementById('results').classList.add('visible');
+}
+
+function renderHallazgos(list, filter='all') {
+  const filtered = filter==='all' ? list : list.filter(h=>h.estado===filter);
+  document.getElementById('hallazgos-list').innerHTML = filtered.map((h,i) => {
+    const rev = reviews[h.regla_id] || {};
+    return `<div class="hallazgo ${rev.estado?'rev-'+rev.estado:''}" id="hc-${i}">
+      <div class="hallazgo-header" onclick="toggle(${i})">
+        <div class="sev-dot sev-${h.severidad}"></div>
+        <div class="h-info">
+          <div class="h-id">${h.regla_id}</div>
+          <div class="h-name">${h.regla_nombre}</div>
+          <div class="h-desc">${h.descripcion}</div>
+        </div>
+        <div class="h-right">
+          <span class="estado-tag estado-${h.estado}">${h.estado}</span>
+          ${rev.estado?`<span class="rev-tag" style="color:${rev.estado==='APROBADO'?'var(--green)':'var(--red)'}">✓ ${rev.estado}</span>`:''}
+        </div>
+      </div>
+      <div class="hallazgo-body" id="hb-${i}">
+        <div class="evidence-block">
+          <div class="block-label ev-label">Evidencia del documento</div>
+          "${h.evidencia_documento}"
+        </div>
+        <div class="rec-block">
+          <div class="block-label rec-label">Recomendación</div>
+          ${h.recomendacion}
+        </div>
+        <div class="review-section">
+          <div class="review-title">Revisión humana</div>
+          <div class="review-actions">
+            <button class="btn-rev aprobar ${rev.estado==='APROBADO'?'active':''}" onclick="setRev('${h.regla_id}',${i},'APROBADO')">✓ Aprobar</button>
+            <button class="btn-rev rechazar ${rev.estado==='RECHAZADO'?'active':''}" onclick="setRev('${h.regla_id}',${i},'RECHAZADO')">✗ Rechazar</button>
+          </div>
+          <textarea class="rev-comment" id="cm-${i}" rows="2" placeholder="Comentario del revisor...">${rev.comentario||''}</textarea>
+          <button class="btn-save" onclick="saveRev('${h.regla_id}',${i})">Guardar revisión</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggle(i) { document.getElementById('hb-'+i).classList.toggle('open'); }
+
+function setRev(id, i, estado) {
+  if(!reviews[id]) reviews[id]={};
+  reviews[id].estado = estado;
+  document.querySelectorAll(`#hc-${i} .btn-rev`).forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('hc-'+i).className = 'hallazgo rev-'+estado;
+}
+
+function saveRev(id, i) {
+  if(!reviews[id]) reviews[id]={};
+  reviews[id].comentario = document.getElementById('cm-'+i).value;
+  reviews[id].revisor = document.getElementById('reviewer-name').value;
+  reviews[id].timestamp = new Date().toISOString();
+  const btn = event.target;
+  btn.textContent = '✓ Guardado';
+  setTimeout(()=>btn.textContent='Guardar revisión', 2000);
+}
+
+function filterH(f, el) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(currentData) renderHallazgos(currentData.hallazgos, f);
+}
+
+function generateReport() {
+  if(!currentData) return;
+  const d = currentData;
+  const fecha = new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
+  const revisor = document.getElementById('reviewer-name').value || 'No especificado';
+  const org = document.getElementById('org-name').value || 'No especificado';
+  const rows = d.hallazgos.map(h => {
+    const rev = reviews[h.regla_id]||{};
+    const sc = {CRITICA:'#EF4444',ALTA:'#F59E0B',MEDIA:'#F97316'}[h.severidad]||'#64748B';
+    const ec = {INCUMPLE:'#EF4444',PARCIAL:'#F59E0B',CUMPLE:'#10B981'}[h.estado]||'#64748B';
+    return `<tr><td style="font-weight:600;font-size:12px">${h.regla_id}</td><td>${h.regla_nombre}</td><td style="color:${sc};font-weight:700;font-size:11px">${h.severidad}</td><td style="color:${ec};font-weight:700;font-size:11px">${h.estado}</td><td style="font-size:12px;color:#64748B">${h.recomendacion}</td><td style="font-size:11px;color:${rev.estado==='APROBADO'?'#10B981':rev.estado==='RECHAZADO'?'#EF4444':'#64748B'}">${rev.estado||'PENDIENTE'}<br><span style="color:#94A3B8">${rev.comentario||''}</span></td></tr>`;
+  }).join('');
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>DocuFlow Expediente</title>
+  <style>body{font-family:-apple-system,sans-serif;margin:48px;color:#1E293B}.header{border-bottom:3px solid #3B82F6;padding-bottom:20px;margin-bottom:32px}h1{font-size:22px;margin:0 0 4px}.meta{color:#64748B;font-size:13px}.scores{display:flex;gap:40px;background:#F8FAFC;border-radius:10px;padding:20px 24px;margin-bottom:28px}label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;display:block;margin-bottom:4px}.val{font-size:24px;font-weight:800}.summary{background:#EFF6FF;border-left:4px solid #3B82F6;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:28px;font-size:14px;line-height:1.7}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1E293B;color:white;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em}td{padding:10px 12px;border-bottom:1px solid #E2E8F0;vertical-align:top}tr:nth-child(even) td{background:#F8FAFC}.firma{margin-top:48px;border-top:1px solid #E2E8F0;padding-top:20px;font-size:12px;color:#64748B}</style></head>
+  <body><div class="header"><h1>DocuFlow — Expediente de Revisión Documental</h1><div class="meta">${org} · ${d.documento} · ${fecha}</div></div>
+  <div class="scores"><div><label>Score</label><div class="val">${d.score_confianza}/100</div></div><div><label>Nivel de riesgo</label><div class="val">${d.nivel_riesgo}</div></div><div><label>Hallazgos</label><div class="val">${d.hallazgos.length}</div></div><div><label>Marco</label><div class="val" style="font-size:14px;margin-top:6px">SARLAFT/SFC</div></div></div>
+  <div class="summary"><strong>Resumen ejecutivo:</strong> ${d.resumen_ejecutivo}</div>
+  <table><thead><tr><th>ID</th><th>Hallazgo</th><th>Severidad</th><th>Estado</th><th>Recomendación</th><th>Revisión humana</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="firma"><strong>Revisor:</strong> ${revisor} · <strong>Fecha:</strong> ${fecha} · <strong>Motor IA:</strong> ${d.metadata?.motor_ia||'claude-sonnet-4-6'} · <strong>DocuFlow</strong> by LindarTEC</div>
+  </body></html>`;
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `DocuFlow_Expediente_${Date.now()}.html`;
+  a.click();
+}
+</script>
+</body>
+</html>
