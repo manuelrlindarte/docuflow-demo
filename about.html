@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sobre DocuFlow — LindarTEC Intelligence Suite</title>
+
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: rgba(255,255,255,0.06);
+      --line: rgba(255,255,255,0.12);
+      --text: #f7f9ff;
+      --muted: #9ba8c0;
+      --blue: #5b8cff;
+      --cyan: #33d6ff;
+      --radius: 24px;
+      --shadow: 0 28px 80px rgba(0,0,0,0.36);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 5%, rgba(91,140,255,0.24), transparent 30%),
+        radial-gradient(circle at 85% 12%, rgba(51,214,255,0.15), transparent 26%),
+        linear-gradient(180deg, #070b14 0%, #0a1020 48%, #05070d 100%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(1180px, 92%);
+      margin: auto;
+    }
+
+    .hero {
+      padding: 96px 0 70px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 9px 14px;
+      border: 1px solid rgba(91,140,255,0.35);
+      background: rgba(91,140,255,0.12);
+      color: #c9d7ff;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      margin-bottom: 26px;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 5.7rem);
+      line-height: 0.96;
+      letter-spacing: -0.075em;
+      max-width: 920px;
+      margin-bottom: 26px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ffffff, #9ab6ff, #5ee7ff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.16rem;
+      max-width: 780px;
+    }
+
+    section { padding: 78px 0; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2, .card h3 {
+      letter-spacing: -0.035em;
+      margin-bottom: 14px;
+    }
+
+    .card h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-top: 14px;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 38px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: -0.055em;
+      margin-bottom: 18px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .founder {
+      background: #f8fafc;
+      color: #0f172a;
+      border-radius: 32px;
+      padding: 34px;
+      box-shadow: var(--shadow);
+    }
+
+    .founder h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: -0.055em;
+      margin-bottom: 18px;
+    }
+
+    .founder p {
+      color: #475569;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: #1e3a8a;
+      background: #dbeafe;
+      border: 1px solid #bfdbfe;
+      margin-bottom: 18px;
+    }
+
+    .cta {
+      text-align: center;
+      padding: 88px 24px;
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(91,140,255,0.35), transparent 42%),
+        rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+    }
+
+    .cta h2 {
+      font-size: clamp(2.2rem, 5vw, 4.1rem);
+      letter-spacing: -0.06em;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .cta p {
+      color: var(--muted);
+      max-width: 650px;
+      margin: 0 auto 30px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 21px;
+      border-radius: 999px;
+      font-weight: 900;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #06101f;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 58px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <main>
+    <header class="hero">
+      <div class="container">
+        <div class="eyebrow">Sobre DocuFlow</div>
+        <h1>
+          Construimos infraestructura de confianza para
+          <span class="gradient-text">documentos críticos.</span>
+        </h1>
+        <p>
+          DocuFlow nace para ayudar a organizaciones reguladas a usar inteligencia artificial
+          sin perder control, trazabilidad, evidencia ni responsabilidad humana.
+        </p>
+      </div>
+    </header>
+
+    <section>
+      <div class="container grid-2">
+        <div class="card">
+          <h2>Por qué existe DocuFlow</h2>
+          <p>
+            La inteligencia artificial está entrando rápidamente en procesos legales,
+            regulatorios, financieros y operativos. Pero muchas organizaciones todavía
+            revisan documentos críticos con correos, versiones dispersas, criterios manuales
+            y evidencia difícil de reconstruir.
+          </p>
+          <br />
+          <p>
+            DocuFlow busca cerrar esa brecha: no reemplazando el juicio profesional,
+            sino convirtiéndolo en un proceso verificable, trazable y listo para auditoría.
+          </p>
+        </div>
+
+        <div class="card">
+          <h2>Nuestra tesis</h2>
+          <p>
+            En organizaciones reguladas, el valor de la IA no está solo en generar respuestas.
+            Está en demostrar cómo se llegó a una conclusión, qué evidencia la respalda,
+            quién la validó y qué riesgos permanecen abiertos.
+          </p>
+          <ul>
+            <li>La IA debe ser explicable en procesos críticos.</li>
+            <li>La evidencia debe quedar asociada a cada hallazgo.</li>
+            <li>La revisión humana debe permanecer dentro del flujo.</li>
+            <li>La trazabilidad debe estar disponible antes de la auditoría.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head">
+          <h2>LindarTEC Intelligence Suite</h2>
+          <p>
+            DocuFlow es el primer módulo de una visión más amplia:
+            construir herramientas de inteligencia, riesgo y gobernanza para organizaciones
+            que operan en entornos regulados.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3>DocuFlow</h3>
+            <p>
+              Inteligencia documental, revisión de riesgos, evidencia verificable
+              y expedientes auditables para documentos críticos.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Signal</h3>
+            <p>
+              Inteligencia colectiva y señales tempranas de riesgo organizacional
+              para anticipar problemas antes de que aparezcan en los reportes formales.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Risk Intelligence</h3>
+            <p>
+              Una capa futura de monitoreo, análisis y gobernanza para decisiones
+              institucionales apoyadas en IA.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container founder">
+        <span class="pill">Fundador</span>
+        <h2>Manuel Ricardo Lindarte</h2>
+        <p>
+          DocuFlow es impulsado por Manuel Ricardo Lindarte, profesional financiero
+          con experiencia en banca central, programas públicos de crédito, portafolios,
+          cumplimiento operativo y analítica de datos.
+        </p>
+        <p>
+          Actualmente desarrolla su formación en Inteligencia Analítica de Datos en la
+          Universidad de los Andes, integrando experiencia financiera, criterio regulatorio
+          y capacidades tecnológicas para construir soluciones aplicables a organizaciones
+          reguladas en América Latina.
+        </p>
+        <p>
+          La visión de DocuFlow surge de una pregunta simple:
+          ¿cómo pueden las organizaciones usar IA en documentos críticos sin perder confianza?
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head">
+          <h2>Qué defendemos</h2>
+          <p>
+            DocuFlow no pretende vender automatización ciega. Pretende construir
+            confianza operacional para equipos que necesitan velocidad, pero también control.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3>IA con responsabilidad</h3>
+            <p>
+              Los modelos son motores de análisis, no sustitutos absolutos del criterio experto.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Humano en el flujo</h3>
+            <p>
+              La aprobación, interpretación y responsabilidad final deben mantenerse bajo control humano.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Auditoría desde el diseño</h3>
+            <p>
+              Cada hallazgo, decisión y evidencia debe poder reconstruirse posteriormente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="cta">
+          <h2>Conozca DocuFlow en un proceso real.</h2>
+          <p>
+            Estamos validando pilotos con organizaciones que trabajan con documentos críticos,
+            procesos auditables y uso responsable de inteligencia artificial.
+          </p>
+          <a class="btn" href="pilot.html">Solicitar piloto</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <script src="components.js"></script>
+</body>
+</html>

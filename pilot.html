@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocuFlow Pilot Program — Validación en procesos reales</title>
+
+  <style>
+    :root {
+      --bg: #070b14;
+      --panel: rgba(255,255,255,0.06);
+      --panel-2: rgba(255,255,255,0.09);
+      --line: rgba(255,255,255,0.12);
+      --text: #f7f9ff;
+      --muted: #9ba8c0;
+      --blue: #5b8cff;
+      --cyan: #33d6ff;
+      --green: #36d399;
+      --amber: #f8b84e;
+      --red: #ff6b6b;
+      --radius: 24px;
+      --shadow: 0 28px 80px rgba(0,0,0,0.36);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 5%, rgba(91,140,255,0.24), transparent 30%),
+        radial-gradient(circle at 85% 12%, rgba(51,214,255,0.15), transparent 26%),
+        linear-gradient(180deg, #070b14 0%, #0a1020 48%, #05070d 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1180px, 92%);
+      margin: auto;
+    }
+
+    .hero {
+      padding: 92px 0 64px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 54px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border: 1px solid rgba(91,140,255,0.35);
+      background: rgba(91,140,255,0.12);
+      color: #c9d7ff;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      margin-bottom: 26px;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 5.6rem);
+      line-height: 0.96;
+      letter-spacing: -0.075em;
+      margin-bottom: 24px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ffffff, #9ab6ff, #5ee7ff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.14rem;
+      max-width: 700px;
+      margin-bottom: 32px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 21px;
+      border-radius: 999px;
+      font-weight: 900;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #06101f;
+      box-shadow: 0 18px 45px rgba(91,140,255,0.26);
+    }
+
+    .btn-secondary {
+      border-color: rgba(255,255,255,0.17);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+
+    .pilot-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.045));
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pilot-card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background: radial-gradient(circle at 18% 0%, rgba(91,140,255,0.27), transparent 36%);
+      pointer-events: none;
+    }
+
+    .pilot-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .pilot-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 22px;
+    }
+
+    .pilot-header h2 {
+      font-size: 1.4rem;
+      letter-spacing: -0.04em;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .pill-green {
+      color: #baf8de;
+      background: rgba(54,211,153,0.12);
+      border: 1px solid rgba(54,211,153,0.24);
+    }
+
+    .pill-amber {
+      color: #ffe1a5;
+      background: rgba(248,184,78,0.12);
+      border: 1px solid rgba(248,184,78,0.26);
+    }
+
+    .pilot-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.6rem;
+      letter-spacing: -0.04em;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 17px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    section {
+      padding: 82px 0;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 42px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.055em;
+      margin-bottom: 18px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+    }
+
+    .card h3 {
+      margin-bottom: 12px;
+      font-size: 1.15rem;
+      letter-spacing: -0.025em;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .week {
+      min-height: 245px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .week-number {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: rgba(91,140,255,0.13);
+      border: 1px solid rgba(91,140,255,0.25);
+      color: #b7c8ff;
+      font-weight: 900;
+      margin-bottom: 18px;
+    }
+
+    .week ul {
+      margin-top: 14px;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .week li {
+      margin-bottom: 8px;
+    }
+
+    .deliverable {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .icon {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: rgba(51,214,255,0.12);
+      border: 1px solid rgba(51,214,255,0.22);
+      color: #b9f2ff;
+      font-weight: 900;
+    }
+
+    .fit-box {
+      background:
+        radial-gradient(circle at 20% 0%, rgba(91,140,255,0.18), transparent 32%),
+        rgba(255,255,255,0.055);
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .fit-list {
+      display: grid;
+      gap: 13px;
+    }
+
+    .fit-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+    }
+
+    .check {
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .pricing-card {
+      background: #f8fafc;
+      color: #0f172a;
+      border-radius: 32px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .pricing-card h3 {
+      font-size: 1.6rem;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .pricing-card p {
+      color: #64748b;
+      margin-bottom: 22px;
+    }
+
+    .price {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      margin-bottom: 8px;
+    }
+
+    .price span {
+      font-size: 0.95rem;
+      color: #64748b;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    .pricing-card ul {
+      padding-left: 20px;
+      color: #475569;
+      margin: 20px 0 28px;
+    }
+
+    .pricing-card li {
+      margin-bottom: 9px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 18px;
+    }
+
+    .cta {
+      text-align: center;
+      padding: 88px 24px;
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(91,140,255,0.35), transparent 42%),
+        rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+    }
+
+    .cta h2 {
+      font-size: clamp(2.2rem, 5vw, 4.1rem);
+      letter-spacing: -0.06em;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .cta p {
+      color: var(--muted);
+      max-width: 650px;
+      margin: 0 auto 30px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .fit-box,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-4,
+      .grid-3,
+      .pilot-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .grid-4,
+      .grid-3,
+      .pilot-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 58px;
+      }
+
+      .pilot-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <main>
+    <header class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">DocuFlow Pilot Program</div>
+
+          <h1>
+            Valide DocuFlow
+            <span class="gradient-text">en un proceso real.</span>
+          </h1>
+
+          <p>
+            Durante 4 semanas trabajamos con su equipo para revisar documentos críticos,
+            identificar riesgos, construir evidencia y demostrar trazabilidad documental
+            usando IA avanzada, reglas internas y validación humana.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="mailto:manuelemc2@gmail.com?subject=Piloto%20DocuFlow">
+              Solicitar piloto
+            </a>
+            <a class="btn btn-secondary" href="demo.html">
+              Ver demo navegable
+            </a>
+          </div>
+
+          <div class="note">
+            Diseñado para organizaciones que necesitan probar valor antes de comprometerse con una implementación completa.
+          </div>
+        </div>
+
+        <div class="pilot-card">
+          <div class="pilot-header">
+            <div>
+              <h2>Piloto de validación</h2>
+              <p style="color:var(--muted);font-size:0.92rem;">
+                Programa guiado para procesos regulados o auditables.
+              </p>
+            </div>
+            <span class="pill pill-green">4 semanas</span>
+          </div>
+
+          <div class="pilot-stats">
+            <div class="stat">
+              <strong>3–5</strong>
+              <span>Documentos críticos</span>
+            </div>
+            <div class="stat">
+              <strong>1</strong>
+              <span>Matriz de revisión</span>
+            </div>
+            <div class="stat">
+              <strong>1</strong>
+              <span>Reporte ejecutivo</span>
+            </div>
+          </div>
+
+          <div class="mini-list">
+            <div class="mini-item">
+              <span>Diagnóstico del proceso actual</span>
+              <span class="pill pill-amber">Semana 1</span>
+            </div>
+            <div class="mini-item">
+              <span>Configuración de criterios y controles</span>
+              <span class="pill pill-amber">Semana 2</span>
+            </div>
+            <div class="mini-item">
+              <span>Análisis documental y hallazgos</span>
+              <span class="pill pill-amber">Semana 3</span>
+            </div>
+            <div class="mini-item">
+              <span>Reporte ejecutivo y roadmap</span>
+              <span class="pill pill-green">Semana 4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="incluye">
+      <div class="container">
+        <div class="section-head">
+          <h2>Qué incluye el piloto</h2>
+          <p>
+            No es una demo genérica. Es una validación controlada con documentos reales,
+            criterios definidos y resultados accionables.
+          </p>
+        </div>
+
+        <div class="grid-4">
+          <div class="card week">
+            <div class="week-number">01</div>
+            <h3>Diagnóstico</h3>
+            <p>Entendemos cómo revisan hoy sus documentos críticos.</p>
+            <ul>
+              <li>Proceso actual</li>
+              <li>Tipos documentales</li>
+              <li>Dolores operativos</li>
+              <li>Riesgos principales</li>
+            </ul>
+          </div>
+
+          <div class="card week">
+            <div class="week-number">02</div>
+            <h3>Configuración</h3>
+            <p>Definimos la matriz inicial de revisión y control.</p>
+            <ul>
+              <li>Criterios de evaluación</li>
+              <li>Reglas documentales</li>
+              <li>Roles de revisión</li>
+              <li>Flujo de aprobación</li>
+            </ul>
+          </div>
+
+          <div class="card week">
+            <div class="week-number">03</div>
+            <h3>Ejecución</h3>
+            <p>Analizamos documentos reales y generamos hallazgos priorizados.</p>
+            <ul>
+              <li>Riesgos detectados</li>
+              <li>Evidencia vinculada</li>
+              <li>Clasificación de criticidad</li>
+              <li>Revisión humana</li>
+            </ul>
+          </div>
+
+          <div class="card week">
+            <div class="week-number">04</div>
+            <h3>Reporte</h3>
+            <p>Entregamos un informe ejecutivo con recomendaciones.</p>
+            <ul>
+              <li>Risk Intelligence Report</li>
+              <li>Mapa de controles</li>
+              <li>Brechas detectadas</li>
+              <li>Roadmap sugerido</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="entregables">
+      <div class="container">
+        <div class="section-head">
+          <h2>Entregables del piloto</h2>
+          <p>
+            Al final del proceso, su equipo tendrá evidencia concreta para decidir
+            si DocuFlow debe convertirse en una solución permanente.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card deliverable">
+            <div class="icon">R</div>
+            <div>
+              <h3>Risk Intelligence Report</h3>
+              <p>
+                Reporte ejecutivo con hallazgos, riesgos, evidencia,
+                recomendaciones y estado de aprobación.
+              </p>
+            </div>
+          </div>
+
+          <div class="card deliverable">
+            <div class="icon">H</div>
+            <div>
+              <h3>Hallazgos priorizados</h3>
+              <p>
+                Lista de riesgos clasificados por criticidad, impacto,
+                evidencia disponible y acción recomendada.
+              </p>
+            </div>
+          </div>
+
+          <div class="card deliverable">
+            <div class="icon">C</div>
+            <div>
+              <h3>Mapa de controles</h3>
+              <p>
+                Identificación de controles presentes, controles débiles
+                y controles ausentes en el proceso documental.
+              </p>
+            </div>
+          </div>
+
+          <div class="card deliverable">
+            <div class="icon">A</div>
+            <div>
+              <h3>Plan de acción</h3>
+              <p>
+                Recomendaciones accionables para fortalecer revisión,
+                trazabilidad, gobierno documental y uso responsable de IA.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="para-quien">
+      <div class="container">
+        <div class="section-head">
+          <h2>Para quién es DocuFlow</h2>
+          <p>
+            El piloto está diseñado para áreas que trabajan con documentos críticos,
+            decisiones auditables y responsabilidad regulatoria.
+          </p>
+        </div>
+
+        <div class="grid-4">
+          <div class="card">
+            <h3>Compliance</h3>
+            <p>Políticas, SARLAFT, gobierno documental, controles y evidencia de cumplimiento.</p>
+          </div>
+
+          <div class="card">
+            <h3>Legal</h3>
+            <p>Contratos, conceptos, procedimientos internos y validación de riesgos documentales.</p>
+          </div>
+
+          <div class="card">
+            <h3>Auditoría</h3>
+            <p>Trazabilidad, revisión posterior, soporte documental y reconstrucción de decisiones.</p>
+          </div>
+
+          <div class="card">
+            <h3>Riesgo</h3>
+            <p>Procesos críticos, riesgo operacional, gobierno de IA y alertas documentales.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="criterios">
+      <div class="container">
+        <div class="fit-box">
+          <div>
+            <div class="section-head" style="margin-bottom:0;">
+              <h2>Estamos seleccionando organizaciones piloto</h2>
+              <p>
+                Buscamos equipos que quieran validar el uso de IA con control,
+                evidencia y trazabilidad, no solamente “probar otro chatbot”.
+              </p>
+            </div>
+          </div>
+
+          <div class="fit-list">
+            <div class="fit-item">
+              <span class="check">✓</span>
+              <span>Gestionan documentos críticos, regulados o auditables.</span>
+            </div>
+
+            <div class="fit-item">
+              <span class="check">✓</span>
+              <span>Tienen procesos donde un error documental puede generar riesgo operativo, legal o reputacional.</span>
+            </div>
+
+            <div class="fit-item">
+              <span class="check">✓</span>
+              <span>Están explorando IA, pero necesitan mecanismos de control y revisión humana.</span>
+            </div>
+
+            <div class="fit-item">
+              <span class="check">✓</span>
+              <span>Quieren medir valor real antes de aprobar una implementación completa.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="inversion">
+      <div class="container grid-2">
+        <div class="section-head">
+          <h2>Una validación acotada antes de una implementación completa.</h2>
+          <p>
+            El objetivo del piloto es reducir incertidumbre: validar el caso de uso,
+            medir utilidad real, identificar brechas y decidir con evidencia.
+          </p>
+          <br />
+          <a class="btn btn-secondary" href="report.html">Ver ejemplo de reporte</a>
+        </div>
+
+        <div class="pricing-card">
+          <h3>Piloto DocuFlow</h3>
+          <p>Programa guiado de 4 semanas para un caso documental real.</p>
+
+          <div class="price">
+            USD 0–3.000 <span>/ piloto inicial</span>
+          </div>
+
+          <p>
+            Para los primeros pilotos de validación, el alcance y precio pueden ajustarse
+            según tipo de organización, complejidad y acceso a documentos.
+          </p>
+
+          <ul>
+            <li>Diagnóstico inicial del proceso documental.</li>
+            <li>Configuración de matriz de revisión.</li>
+            <li>Análisis de 3 a 5 documentos críticos.</li>
+            <li>Reporte ejecutivo de riesgos y recomendaciones.</li>
+            <li>Sesión final de resultados con el equipo.</li>
+          </ul>
+
+          <a class="btn btn-primary" href="mailto:manuelemc2@gmail.com?subject=Piloto%20DocuFlow">
+            Solicitar conversación
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto">
+      <div class="container">
+        <div class="cta">
+          <h2>¿Le gustaría validar DocuFlow con un caso real?</h2>
+          <p>
+            Si su organización revisa documentos críticos y quiere usar IA sin perder control,
+            trazabilidad ni evidencia, este piloto es el mejor punto de partida.
+          </p>
+
+          <div class="hero-actions" style="justify-content:center;">
+            <a class="btn btn-primary" href="mailto:manuelemc2@gmail.com?subject=Piloto%20DocuFlow">
+              Solicitar piloto
+            </a>
+            <a class="btn btn-secondary" href="demo.html">
+              Ver demo primero
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <script src="components.js"></script>
+</body>
+</html>

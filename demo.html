@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocuFlow Demo — Document Intelligence Workspace</title>
+
+  <style>
+    :root {
+      --bg: #070b14;
+      --sidebar: #090f1d;
+      --panel: #0d1426;
+      --panel-2: #111a31;
+      --card: rgba(255,255,255,0.06);
+      --card-2: rgba(255,255,255,0.09);
+      --line: rgba(255,255,255,0.12);
+      --text: #f7f9ff;
+      --muted: #9ba8c0;
+      --soft: #c8d3ea;
+      --blue: #5b8cff;
+      --cyan: #33d6ff;
+      --green: #36d399;
+      --amber: #f8b84e;
+      --red: #ff6b6b;
+      --purple: #a78bfa;
+      --radius: 18px;
+      --shadow: 0 24px 70px rgba(0,0,0,0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 5%, rgba(91,140,255,0.18), transparent 28%),
+        radial-gradient(circle at 90% 20%, rgba(51,214,255,0.12), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: rgba(9,15,29,0.92);
+      border-right: 1px solid var(--line);
+      padding: 24px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 34px;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.03em;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #07111f;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .nav-section {
+      margin-bottom: 28px;
+    }
+
+    .nav-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #647089;
+      letter-spacing: 0.12em;
+      margin: 0 10px 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 13px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      margin-bottom: 5px;
+    }
+
+    .nav-item.active {
+      background: rgba(91,140,255,0.13);
+      color: #dbe6ff;
+      border: 1px solid rgba(91,140,255,0.24);
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 22px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+    }
+
+    .sidebar-footer strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .sidebar-footer span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .main {
+      padding: 24px;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.045);
+      padding: 0 22px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(14px);
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .breadcrumb strong {
+      color: var(--text);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.18s ease;
+      background: transparent;
+      color: var(--text);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #07111f;
+      box-shadow: 0 14px 35px rgba(91,140,255,0.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--line);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(13,20,38,0.78);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .panel-header h2 {
+      font-size: 1.12rem;
+      letter-spacing: -0.025em;
+    }
+
+    .panel-header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .panel-body {
+      padding: 22px;
+    }
+
+    .upload-area {
+      border: 1px dashed rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.04);
+      border-radius: 24px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .upload-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: rgba(91,140,255,0.13);
+      color: #a8bdff;
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+      font-weight: 900;
+    }
+
+    .upload-area h3 {
+      font-size: 1.02rem;
+      margin-bottom: 4px;
+    }
+
+    .upload-area p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .file-card {
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .file-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .file-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .file-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,107,107,0.12);
+      color: #ffb7b7;
+      font-weight: 900;
+    }
+
+    .file-name strong {
+      display: block;
+    }
+
+    .file-name span {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pill-green {
+      color: #baf8de;
+      background: rgba(54,211,153,0.12);
+      border: 1px solid rgba(54,211,153,0.24);
+    }
+
+    .pill-amber {
+      color: #ffe1a5;
+      background: rgba(248,184,78,0.12);
+      border: 1px solid rgba(248,184,78,0.26);
+    }
+
+    .pill-red {
+      color: #ffc1c1;
+      background: rgba(255,107,107,0.12);
+      border: 1px solid rgba(255,107,107,0.24);
+    }
+
+    .pill-blue {
+      color: #c7d7ff;
+      background: rgba(91,140,255,0.12);
+      border: 1px solid rgba(91,140,255,0.24);
+    }
+
+    .progress-wrap {
+      margin-top: 14px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .progress {
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 87%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+    }
+
+    .engines {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .engine {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+    }
+
+    .engine strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .engine span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      padding: 18px;
+      border-radius: 19px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.55rem;
+      margin-bottom: 3px;
+      letter-spacing: -0.04em;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .findings {
+      display: grid;
+      gap: 14px;
+    }
+
+    .finding {
+      border-radius: 20px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--line);
+      padding: 18px;
+    }
+
+    .finding-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .finding h3 {
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .finding p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .evidence {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .evidence small {
+      display: block;
+      color: #79869f;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.68rem;
+    }
+
+    .evidence span {
+      color: #dfe7ff;
+      font-size: 0.9rem;
+    }
+
+    .right-column {
+      display: grid;
+      gap: 24px;
+    }
+
+    .risk-score {
+      text-align: center;
+      padding: 22px;
+    }
+
+    .score-ring {
+      width: 170px;
+      height: 170px;
+      margin: 10px auto 20px;
+      border-radius: 50%;
+      background:
+        conic-gradient(var(--amber) 0 42%, var(--green) 42% 78%, rgba(255,255,255,0.09) 78% 100%);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .score-ring::after {
+      content: "";
+      width: 126px;
+      height: 126px;
+      border-radius: 50%;
+      background: var(--panel);
+      position: absolute;
+    }
+
+    .score-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .score-content strong {
+      font-size: 2.25rem;
+      letter-spacing: -0.05em;
+    }
+
+    .score-content span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+    }
+
+    .timeline-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(91,140,255,0.13);
+      border: 1px solid rgba(91,140,255,0.3);
+      display: grid;
+      place-items: center;
+      color: var(--cyan);
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+
+    .timeline-item strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 0.92rem;
+    }
+
+    .timeline-item span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .approval-card {
+      display: grid;
+      gap: 12px;
+    }
+
+    .person {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .person strong {
+      display: block;
+      font-size: 0.92rem;
+    }
+
+    .person span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 13px;
+      background: rgba(91,140,255,0.15);
+      display: grid;
+      place-items: center;
+      color: #c3d4ff;
+      font-weight: 900;
+      margin-right: 10px;
+    }
+
+    .person-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .floating-note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 17px;
+      background: rgba(51,214,255,0.08);
+      border: 1px solid rgba(51,214,255,0.18);
+      color: #ccefff;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .sidebar-footer {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        margin-top: 24px;
+      }
+
+      .topbar {
+        height: auto;
+        padding: 18px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .upload-area {
+        grid-template-columns: 1fr;
+      }
+
+      .engines,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">D</span>
+        <span>DocuFlow</span>
+      </a>
+
+      <div class="nav-section">
+        <div class="nav-title">Workspace</div>
+        <a class="nav-item active" href="#">▣ Document Review</a>
+        <a class="nav-item" href="#">◇ Risk Findings</a>
+        <a class="nav-item" href="#">◎ Evidence Vault</a>
+        <a class="nav-item" href="report.html">▤ Audit Report</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title">Governance</div>
+        <a class="nav-item" href="#">□ Approval Flow</a>
+        <a class="nav-item" href="#">△ Regulatory Matrix</a>
+        <a class="nav-item" href="#">◌ AI Engines</a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title">Suite</div>
+        <a class="nav-item" href="#">DocuFlow</a>
+        <a class="nav-item" href="#">Signal</a>
+        <a class="nav-item" href="#">LindarTEC Intelligence</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <strong>Demo conceptual</strong>
+        <span>Esta vista simula el flujo objetivo de DocuFlow V.04.</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="breadcrumb">
+            DocuFlow / <strong>Document Intelligence Workspace</strong>
+          </div>
+          <div style="color:var(--muted);font-size:0.88rem;margin-top:4px;">
+            Política SARLAFT · Revisión documental · Gobierno de IA
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <a class="btn btn-secondary" href="index.html">Volver al sitio</a>
+          <a class="btn btn-primary" href="report.html">Generar reporte</a>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <div class="left-column">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>1. Carga y análisis del documento</h2>
+                <p>DocuFlow convierte un documento crítico en un expediente verificable.</p>
+              </div>
+              <span class="pill pill-green">Procesado</span>
+            </div>
+
+            <div class="panel-body">
+              <div class="upload-area">
+                <div class="upload-icon">↑</div>
+                <div>
+                  <h3>Arrastra un documento o selecciona un archivo</h3>
+                  <p>PDF, Word, políticas internas, contratos, reportes o manuales regulatorios.</p>
+                </div>
+                <button class="btn btn-secondary">Seleccionar archivo</button>
+              </div>
+
+              <div class="file-card">
+                <div class="file-top">
+                  <div class="file-name">
+                    <div class="file-badge">PDF</div>
+                    <div>
+                      <strong>Política SARLAFT_v4.pdf</strong>
+                      <span>24 páginas · 1.8 MB · Cargado hace 3 minutos</span>
+                    </div>
+                  </div>
+
+                  <span class="pill pill-blue">AI Review</span>
+                </div>
+
+                <div class="progress-wrap">
+                  <div class="progress-meta">
+                    <span>Análisis completado</span>
+                    <span>87%</span>
+                  </div>
+                  <div class="progress">
+                    <div class="progress-bar"></div>
+                  </div>
+                </div>
+
+                <div class="engines">
+                  <div class="engine">
+                    <strong>Claude</strong>
+                    <span>Análisis semántico y hallazgos documentales</span>
+                  </div>
+                  <div class="engine">
+                    <strong>OpenAI</strong>
+                    <span>Contraste, síntesis y validación cruzada</span>
+                  </div>
+                  <div class="engine">
+                    <strong>DocuFlow Rules</strong>
+                    <span>Matriz SARLAFT, checklist y criterios internos</span>
+                  </div>
+                </div>
+
+                <div class="floating-note">
+                  En la versión real, el motor podrá alternar modelos sin que el cliente dependa de un único proveedor.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <br />
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>2. Hallazgos de riesgo y evidencia</h2>
+                <p>Cada hallazgo debe ser explicable, verificable y asignable.</p>
+              </div>
+              <span class="pill pill-amber">Revisión humana requerida</span>
+            </div>
+
+            <div class="panel-body">
+              <div class="summary-grid">
+                <div class="metric">
+                  <strong>12</strong>
+                  <span>Hallazgos</span>
+                </div>
+                <div class="metric">
+                  <strong>4</strong>
+                  <span>Críticos</span>
+                </div>
+                <div class="metric">
+                  <strong>6</strong>
+                  <span>Medios</span>
+                </div>
+                <div class="metric">
+                  <strong>87%</strong>
+                  <span>Confianza</span>
+                </div>
+              </div>
+
+              <div class="findings">
+                <article class="finding">
+                  <div class="finding-top">
+                    <div>
+                      <h3>Evidencia insuficiente en controles de actualización</h3>
+                      <p>
+                        El documento menciona monitoreo periódico, pero no define frecuencia,
+                        responsable ni fuente de evidencia para demostrar ejecución.
+                      </p>
+                    </div>
+                    <span class="pill pill-red">Crítico</span>
+                  </div>
+
+                  <div class="evidence">
+                    <small>Evidencia detectada</small>
+                    <span>“La política será revisada de forma periódica por el área responsable.” · Página 12</span>
+                  </div>
+                </article>
+
+                <article class="finding">
+                  <div class="finding-top">
+                    <div>
+                      <h3>Responsable operativo no definido explícitamente</h3>
+                      <p>
+                        Se menciona el área de cumplimiento, pero no se asigna rol, cargo,
+                        comité o responsable final de aprobación.
+                      </p>
+                    </div>
+                    <span class="pill pill-amber">Medio</span>
+                  </div>
+
+                  <div class="evidence">
+                    <small>Criterio DocuFlow</small>
+                    <span>Todo control crítico debe tener responsable, periodicidad, evidencia y flujo de escalamiento.</span>
+                  </div>
+                </article>
+
+                <article class="finding">
+                  <div class="finding-top">
+                    <div>
+                      <h3>Ausencia de trazabilidad para cambios de versión</h3>
+                      <p>
+                        La política no incluye historial de cambios, fecha de aprobación anterior
+                        ni justificación de modificaciones relevantes.
+                      </p>
+                    </div>
+                    <span class="pill pill-amber">Medio</span>
+                  </div>
+
+                  <div class="evidence">
+                    <small>Impacto potencial</small>
+                    <span>Dificulta demostrar gobierno documental ante auditoría o revisión regulatoria.</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="right-column">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Risk Score</h2>
+                <p>Evaluación consolidada del documento.</p>
+              </div>
+            </div>
+
+            <div class="risk-score">
+              <div class="score-ring">
+                <div class="score-content">
+                  <strong>63</strong>
+                  <span>Riesgo medio-alto</span>
+                </div>
+              </div>
+
+              <p style="color:var(--muted);font-size:0.92rem;">
+                El documento puede avanzar, pero requiere validación humana antes de aprobación formal.
+              </p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Audit Trail</h2>
+                <p>Historial verificable del proceso.</p>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-dot">1</div>
+                  <div>
+                    <strong>Documento cargado</strong>
+                    <span>Usuario Compliance · 10:42 AM</span>
+                  </div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-dot">2</div>
+                  <div>
+                    <strong>Análisis IA ejecutado</strong>
+                    <span>Claude + OpenAI + Rules Engine · 10:44 AM</span>
+                  </div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-dot">3</div>
+                  <div>
+                    <strong>Hallazgos clasificados</strong>
+                    <span>12 hallazgos · 4 críticos · 10:47 AM</span>
+                  </div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-dot">4</div>
+                  <div>
+                    <strong>Pendiente aprobación</strong>
+                    <span>Compliance Officer · En espera</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Approval Flow</h2>
+                <p>Responsables del expediente.</p>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <div class="approval-card">
+                <div class="person">
+                  <div class="person-left">
+                    <div class="avatar">CO</div>
+                    <div>
+                      <strong>Compliance Officer</strong>
+                      <span>Revisión principal</span>
+                    </div>
+                  </div>
+                  <span class="pill pill-amber">Pendiente</span>
+                </div>
+
+                <div class="person">
+                  <div class="person-left">
+                    <div class="avatar">LG</div>
+                    <div>
+                      <strong>Legal</strong>
+                      <span>Validación normativa</span>
+                    </div>
+                  </div>
+                  <span class="pill pill-blue">Siguiente</span>
+                </div>
+
+                <div class="person">
+                  <div class="person-left">
+                    <div class="avatar">AU</div>
+                    <div>
+                      <strong>Auditoría</strong>
+                      <span>Control posterior</span>
+                    </div>
+                  </div>
+                  <span class="pill pill-green">Disponible</span>
+                </div>
+              </div>
+
+              <br />
+
+              <a href="report.html" class="btn btn-primary" style="width:100%;text-align:center;">
+                Ver reporte auditable
+              </a>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div id="footer-placeholder"></div>
+  <script src="components.js"></script>
+</body>
+</html>

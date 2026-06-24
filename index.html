@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocuFlow — AI Governance for Critical Documents</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --bg-2: #0d1324;
+      --card: rgba(255,255,255,0.06);
+      --card-2: rgba(255,255,255,0.09);
+      --text: #f6f8ff;
+      --muted: #9ca7bd;
+      --line: rgba(255,255,255,0.12);
+      --blue: #5b8cff;
+      --cyan: #33d6ff;
+      --green: #36d399;
+      --amber: #f8b84e;
+      --danger: #ff6b6b;
+      --radius: 22px;
+      --shadow: 0 30px 80px rgba(0,0,0,0.35);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(91,140,255,0.28), transparent 32%),
+        radial-gradient(circle at 85% 5%, rgba(51,214,255,0.18), transparent 28%),
+        linear-gradient(180deg, #070b14 0%, #0a1020 45%, #05070d 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1180px, 92%);
+      margin: auto;
+    }
+
+    .hero {
+      padding: 92px 0 70px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 54px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border: 1px solid rgba(91,140,255,0.35);
+      background: rgba(91,140,255,0.12);
+      color: #c9d7ff;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      margin-bottom: 26px;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 5.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.075em;
+      margin-bottom: 26px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ffffff, #9ab6ff, #5ee7ff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.15rem;
+      max-width: 680px;
+      margin-bottom: 34px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #06101f;
+      box-shadow: 0 18px 45px rgba(91,140,255,0.28);
+    }
+
+    .btn-secondary {
+      border-color: rgba(255,255,255,0.17);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .trust-note {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .product-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background: radial-gradient(circle at 20% 0%, rgba(91,140,255,0.28), transparent 35%);
+      pointer-events: none;
+    }
+
+    .window-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.25);
+    }
+
+    .dashboard {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 16px;
+    }
+
+    .upload-box {
+      border: 1px dashed rgba(255,255,255,0.22);
+      border-radius: 22px;
+      padding: 24px;
+      background: rgba(0,0,0,0.16);
+    }
+
+    .file-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      color: #dfe7ff;
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .pill-green {
+      color: #b9f8dc;
+      background: rgba(54,211,153,0.13);
+      border: 1px solid rgba(54,211,153,0.24);
+    }
+
+    .pill-amber {
+      color: #ffe1a6;
+      background: rgba(248,184,78,0.12);
+      border: 1px solid rgba(248,184,78,0.24);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.55rem;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    section {
+      padding: 86px 0;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 42px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.055em;
+      margin-bottom: 18px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+    }
+
+    .card h3 {
+      margin-bottom: 12px;
+      font-size: 1.22rem;
+    }
+
+    .card p {
+      color: var(--muted);
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(91,140,255,0.13);
+      color: #9db7ff;
+      margin-bottom: 18px;
+      font-weight: 900;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .step {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      min-height: 190px;
+    }
+
+    .step-number {
+      color: var(--cyan);
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .report {
+      background: #f8fafc;
+      color: #0f172a;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #d8dee9;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .report h3 {
+      font-size: 1.5rem;
+    }
+
+    .risk-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .risk-item strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .risk-item span {
+      color: #64748b;
+    }
+
+    .cta {
+      text-align: center;
+      padding: 90px 24px;
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(91,140,255,0.35), transparent 42%),
+        rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+    }
+
+    .cta h2 {
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      letter-spacing: -0.06em;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .cta p {
+      color: var(--muted);
+      max-width: 650px;
+      margin: 0 auto 30px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .cards,
+      .flow,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 58px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <main>
+    <header class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">AI Governance for Critical Documents</div>
+
+          <h1>
+            Documentos críticos.
+            <span class="gradient-text">Evidencia verificable.</span>
+          </h1>
+
+          <p>
+            DocuFlow ayuda a organizaciones reguladas a revisar documentos críticos con IA avanzada,
+            trazabilidad auditable, validación humana y control de riesgos antes de que un error
+            llegue al comité, al regulador o al cliente.
+          </p>
+
+          <div class="hero-actions">
+            <a href="demo.html" class="btn btn-primary">Ver demo conceptual</a>
+            <a href="#producto" class="btn btn-secondary">Cómo funciona</a>
+          </div>
+
+          <div class="trust-note">
+            Diseñado para compliance, riesgo, auditoría, legal y gobierno de IA.
+          </div>
+        </div>
+
+        <div class="product-card">
+          <div class="window-bar">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+
+          <div class="dashboard">
+            <div class="upload-box">
+              <strong>Documento analizado</strong>
+              <div class="file-row">
+                <span>Política SARLAFT_v4.pdf</span>
+                <span class="pill pill-green">Procesado</span>
+              </div>
+            </div>
+
+            <div class="metrics">
+              <div class="metric">
+                <strong>87%</strong>
+                <span>Confianza documental</span>
+              </div>
+              <div class="metric">
+                <strong>12</strong>
+                <span>Hallazgos detectados</span>
+              </div>
+              <div class="metric">
+                <strong>4</strong>
+                <span>Riesgos críticos</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <span class="pill pill-amber">Revisión requerida</span>
+              <h3 style="margin-top:14px;">Evidencia insuficiente en controles de actualización</h3>
+              <p>
+                El documento menciona monitoreo periódico, pero no define responsable,
+                frecuencia ni evidencia de ejecución.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="problema">
+      <div class="container">
+        <div class="section-head">
+          <h2>La IA ya está entrando en documentos críticos. El control no puede quedarse atrás.</h2>
+          <p>
+            El riesgo no es usar IA. El riesgo es usarla sin trazabilidad, sin fuentes,
+            sin responsables y sin evidencia verificable.
+          </p>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="icon">01</div>
+            <h3>Errores invisibles</h3>
+            <p>
+              Citas falsas, supuestos no validados, omisiones regulatorias y conclusiones
+              que parecen correctas hasta que alguien audita el documento.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="icon">02</div>
+            <h3>Procesos manuales</h3>
+            <p>
+              Revisiones por correo, versiones dispersas, comentarios sin trazabilidad
+              y aprobaciones difíciles de reconstruir.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="icon">03</div>
+            <h3>Responsabilidad difusa</h3>
+            <p>
+              Cuando algo falla, nadie puede demostrar claramente quién revisó,
+              qué se validó y con base en qué evidencia.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="producto">
+      <div class="container split">
+        <div class="section-head">
+          <h2>DocuFlow no reemplaza el criterio humano. Lo vuelve auditable.</h2>
+          <p>
+            Usamos modelos avanzados como motores de análisis, pero el verdadero valor está
+            en la capa de gobernanza: evidencia, controles, validación, historial y reporte ejecutivo.
+          </p>
+          <br />
+          <a href="pilot.html" class="btn btn-primary">Quiero validar un piloto</a>
+        </div>
+
+        <div class="cards" style="grid-template-columns:1fr;">
+          <div class="card">
+            <h3>Motor IA reemplazable</h3>
+            <p>
+              DocuFlow puede operar con Claude, OpenAI, Gemini u otros proveedores.
+              El cliente no depende de un único modelo.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Matriz de cumplimiento</h3>
+            <p>
+              Cada documento se evalúa contra reglas, checklists y criterios regulatorios
+              definidos por la organización.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Expediente auditable</h3>
+            <p>
+              Cada hallazgo queda asociado a evidencia, fuente, responsable, decisión
+              y estado de aprobación.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="flujo">
+      <div class="container">
+        <div class="section-head">
+          <h2>De documento a expediente verificable en cuatro pasos.</h2>
+          <p>
+            Una experiencia simple para equipos que necesitan velocidad sin perder control.
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="step">
+            <div class="step-number">01</div>
+            <h3>Cargar documento</h3>
+            <p>
+              Políticas, contratos, reportes regulatorios, manuales, informes o procedimientos críticos.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">02</div>
+            <h3>Analizar con IA</h3>
+            <p>
+              El motor identifica riesgos, inconsistencias, omisiones y afirmaciones que requieren soporte.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">03</div>
+            <h3>Validar evidencia</h3>
+            <p>
+              Cada hallazgo se conecta con fuentes, criterios internos y revisión humana.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">04</div>
+            <h3>Generar reporte</h3>
+            <p>
+              Un expediente ejecutivo listo para comité, auditoría, cumplimiento o seguimiento interno.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="container split">
+        <div>
+          <div class="section-head">
+            <h2>El output no es una respuesta de IA. Es un reporte de confianza.</h2>
+            <p>
+              DocuFlow transforma el análisis en un documento ejecutivo con riesgos,
+              evidencias, responsables y decisiones trazables.
+            </p>
+            <br />
+            <a href="demo.html" class="btn btn-secondary">Abrir demo completa</a>
+          </div>
+        </div>
+
+        <div class="report">
+          <div class="report-header">
+            <div>
+              <h3>Risk Intelligence Report</h3>
+              <p>Documento: Política SARLAFT_v4.pdf</p>
+            </div>
+            <span class="pill pill-amber">Borrador</span>
+          </div>
+
+          <div class="risk-item">
+            <strong>Riesgo crítico: evidencia insuficiente</strong>
+            <span>No se identifica soporte documental para la periodicidad de actualización.</span>
+          </div>
+
+          <div class="risk-item">
+            <strong>Riesgo medio: ambigüedad operativa</strong>
+            <span>El responsable del control no está definido de forma explícita.</span>
+          </div>
+
+          <div class="risk-item">
+            <strong>Recomendación</strong>
+            <span>Asignar responsable, frecuencia, fuente de evidencia y mecanismo de aprobación.</span>
+          </div>
+
+          <div class="risk-item">
+            <strong>Estado</strong>
+            <span>Pendiente de revisión humana por Compliance Officer.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto">
+      <div class="container">
+        <div class="cta">
+          <h2>Construyamos confianza antes de que llegue la auditoría.</h2>
+          <p>
+            Estamos validando pilotos con organizaciones que trabajan con documentos críticos,
+            procesos regulados y uso responsable de IA.
+          </p>
+
+          <a href="pilot.html" class="btn btn-primary">
+            Solicitar piloto
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <script src="components.js"></script>
+</body>
+</html>
