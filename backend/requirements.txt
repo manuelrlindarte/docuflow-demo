@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+pdfplumber
+anthropic
+pyyaml
+python-docx
+reportlab
+requests
